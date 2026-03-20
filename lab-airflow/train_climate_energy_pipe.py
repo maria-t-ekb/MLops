@@ -12,7 +12,6 @@ from airflow.providers.standard.operators.python import PythonOperator
 
 from train_model import train
 
-
 AIRFLOW_HOME = Path(os.environ.get("AIRFLOW_HOME", ".")).resolve()
 DATA_DIR = AIRFLOW_HOME / "data" / "climate_energy"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -20,7 +19,6 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 SOURCE_CSV = DATA_DIR / "climate_energy.csv"
 RAW_CSV = DATA_DIR / "raw_climate_energy.csv"
 CLEAR_CSV = DATA_DIR / "df_clear.csv"
-
 
 def normalize_columns(columns):
     return [
@@ -33,7 +31,6 @@ def normalize_columns(columns):
         for c in columns
     ]
 
-
 def download_data():
     df = pd.read_csv(SOURCE_CSV, delimiter=",")
     df.columns = normalize_columns(df.columns)
@@ -43,7 +40,6 @@ def download_data():
     print("df shape:", df.shape)
     print("columns:", list(df.columns))
     return True
-
 
 def clear_data():
     df = pd.read_csv(RAW_CSV)
@@ -55,9 +51,9 @@ def clear_data():
         df["day"] = df["date"].dt.day
         df = df.drop(columns=["date"])
 
-    if "energy_consumption" not in df.columns:
+    if "avg_temperature" not in df.columns:
         raise ValueError(
-            f"Target column 'energy_consumption' not found. Available columns: {list(df.columns)}"
+            f"Target column 'avg_temperature' not found. Available columns: {list(df.columns)}"
         )
 
     cat_columns = [col for col in ["country"] if col in df.columns]
@@ -67,9 +63,9 @@ def clear_data():
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df = df.drop_duplicates()
-    df = df.dropna(subset=["energy_consumption"])
+    df = df.dropna(subset=["avg_temperature"])
 
-    df = df[df["energy_consumption"] >= 0]
+    df = df[(df["avg_temperature"] >= -50) & (df["avg_temperature"] <= 60)]
 
     for col in df.columns:
         if col not in cat_columns:
@@ -88,7 +84,6 @@ def clear_data():
     print("Saved cleaned dataset to:", CLEAR_CSV)
     print("df_clear shape:", df.shape)
     return True
-
 
 dag_climate = DAG(
     dag_id="train_climate_energy_pipe",
