@@ -14,7 +14,6 @@ from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from mlflow.models import infer_signature
 
-
 AIRFLOW_HOME = Path(os.environ.get("AIRFLOW_HOME", ".")).resolve()
 DATA_DIR = AIRFLOW_HOME / "data" / "climate_energy"
 ARTIFACTS_DIR = AIRFLOW_HOME / "artifacts" / "climate_energy"
@@ -22,10 +21,9 @@ ARTIFACTS_DIR = AIRFLOW_HOME / "artifacts" / "climate_energy"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
-
 def scale_frame(frame):
     df = frame.copy()
-    X, y = df.drop(columns=["energy_consumption"]), df["energy_consumption"]
+    X, y = df.drop(columns=["avg_temperature"]), df["avg_temperature"]
 
     scaler = StandardScaler()
     power_trans = PowerTransformer()
@@ -35,13 +33,11 @@ def scale_frame(frame):
 
     return X_scale, Y_scale, scaler, power_trans
 
-
 def eval_metrics(actual, pred):
     rmse = np.sqrt(mean_squared_error(actual, pred))
     mae = mean_absolute_error(actual, pred)
     r2 = r2_score(actual, pred)
     return rmse, mae, r2
-
 
 def train():
     df = pd.read_csv(DATA_DIR / "df_clear.csv")
