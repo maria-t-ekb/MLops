@@ -1,0 +1,82 @@
+schema: '2.0'
+stages:
+  clean:
+    cmd: python src/clean.py
+    deps:
+    - path: data/titanic.csv
+      hash: md5
+      md5: 2309cc5f04782ed9bb6016d9f4e381cf
+      size: 61194
+    - path: src/clean.py
+      hash: md5
+      md5: c4f9f16a5464521fbb439e7b9c7eed85
+      size: 573
+    outs:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: a094c5e0e358cfe284e9b64c24cd4f32
+      size: 23892
+  feature_engineering:
+    cmd: python src/fe.py
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: a094c5e0e358cfe284e9b64c24cd4f32
+      size: 23892
+    - path: src/fe.py
+      hash: md5
+      md5: 63c465f1c38a745ff2dc0cae6366bdfa
+      size: 491
+    outs:
+    - path: data/features_data.csv
+      hash: md5
+      md5: 5cc79dad393fbab8dd10d518d246fd66
+      size: 24191
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/features_data.csv
+      hash: md5
+      md5: 5cc79dad393fbab8dd10d518d246fd66
+      size: 24191
+    - path: src/train.py
+      hash: md5
+      md5: 7ea1ce1bc5e7e7921b2eb340f553ad07
+      size: 806
+    outs:
+    - path: data/X_test.csv
+      hash: md5
+      md5: 03d17bade14b8afe5ef908eb563bf608
+      size: 4579
+    - path: data/model.joblib
+      hash: md5
+      md5: 50db84a58d2b8b6de4ea91f23a6d79cf
+      size: 404665
+    - path: data/y_test.csv
+      hash: md5
+      md5: 9013c44486e369a63ca7226075a95692
+      size: 367
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/X_test.csv
+      hash: md5
+      md5: 03d17bade14b8afe5ef908eb563bf608
+      size: 4579
+    - path: data/model.joblib
+      hash: md5
+      md5: 50db84a58d2b8b6de4ea91f23a6d79cf
+      size: 404665
+    - path: data/y_test.csv
+      hash: md5
+      md5: 9013c44486e369a63ca7226075a95692
+      size: 367
+    - path: src/evaluate.py
+      hash: md5
+      md5: f1f2e921c9b07c3cdd9d27eceb4427d7
+      size: 726
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: ef358afe9eb6d8e249ab3ed802827d31
+      size: 74
